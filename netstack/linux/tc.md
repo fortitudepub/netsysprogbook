@@ -14,6 +14,10 @@ tc qdisc add dev wlo1 handle ffff: ingress
 tc filter add dev wlo1  protocol ip parent ffff: u32 match ip dst 192.168.31.178/32 flowid :1  action pedit  munge ip dst set 100.64.0.2 pipe csum ip  pass
 # 对eth dst以及ip dst进行修改，并重做csum.
 tc filter add dev wlo1  protocol ip parent ffff: u32 match ip dst 192.168.31.178/32 flowid :1  action pedit ex munge eth dst set 28:df:eb:18:69:29 pipe action pedit  munge ip dst set 100.64.0.2 pipe csum ip  pass
+# 对ip地址进行修改，并重做csum，涉及到pseudo header，亦需要重算传输层。
+tc qdisc add dev eth0 handle ffff: ingress
+tc filter add dev eth0  protocol ip parent ffff: u32 match ip dport 2288  flowid :1  action pedit  munge ip dst set 192.168.1.2 pipe csum ip and udp and tcp pass
+
 ```
 
 
